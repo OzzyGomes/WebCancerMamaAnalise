@@ -2,6 +2,8 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+import pickle
 def get_clean_data():
     data = pd.read_csv('../data/data.csv')
     
@@ -28,14 +30,28 @@ def creat_model(data):
     model = LogisticRegression()
     model.fit(x_train, y_train)
 
+    #test the model
+    y_pred = model.predict(x_test)
+    print('Accuracy of our model: ', accuracy_score(y_test, y_pred))
+    print('Classification report: \n', classification_report(y_test, y_pred))
+
+
+
     return model, scaler
+     
+
      
 def main():
     data = get_clean_data()
     
     model, scaler = creat_model(data)
 
-    
+    with open('model.pkl', 'wb') as f:
+       pickle.dump(model, f)
+        
+    with open('scaler.pkl', 'wb') as f:
+        pickle.dump(scaler, f)
+
 
 if __name__ == '__main__':
     main()
