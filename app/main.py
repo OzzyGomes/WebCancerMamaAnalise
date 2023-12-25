@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import pandas as pd
 import plotly.graph_objects as go
+import numpy as np
 
 
 def get_clean_data():
@@ -64,8 +65,25 @@ def add_sidebar():
          )
     return input_dict
 
+def get_scaled_values(input_dict):
+    data = get_clean_data()
+
+    X = data.drop(['diagnosis'], axis=1)
+
+    scaled_dict = {}
+
+    for key, value in input_dict.items():
+        max_val = X[key].max()
+        min_val = X[key].min()
+        scaled_value = (value - min_val) / (max_val - min_val)
+        scaled_dict[key] = scaled_value
+
+    return scaled_dict
+
 
 def get_radar_chart(input_data):
+
+    input_data = get_scaled_values(input_data)
     
     categories = ['Radius', 'Texture', 'Perimeter', 'Area', 
                 'Smoothness', 'Compactness', 
@@ -112,12 +130,36 @@ def get_radar_chart(input_data):
     polar=dict(
         radialaxis=dict(
         visible=True,
-        range=[0, 5]
+        range=[0, 1]
         )),
-    showlegend=False
+    showlegend=True
     )
  
     return fig
+
+def add_predictions(input_data):
+    model = pickle.load(open('model/model.pkl', 'rb'))
+    scaler = pickle.load(open('model/scaler.pkl', 'rb'))
+
+    input_array = np.array(list(input_data.values())).reshape(1,-1)
+
+    input_array_scaled  = scaler.transform(input_array)
+
+    prediction = model.predict(input_array_scaled)
+    
+    st.subheader('Previsão de grupo de Células')
+    st.write('O grupo de células é: ')
+
+    if prediction[0] == 0:
+        st.write('Benigno')
+    else:
+        st.write('Maligno')
+
+    st.write('A probabilidade de ser Benigno é: ', model.predict_proba(input_array_scaled)[0][0])
+    st.write('A probabilidade de ser Maligno é: ', model.predict_proba(input_array_scaled)[0][1])
+
+    st.write('Este App pode auxiliar profissionais médicos no diagnóstico, mas não deve ser usado como substituto de um diagnóstico profissional.')
+
 
 def main():
     st.set_page_config(
@@ -144,7 +186,7 @@ def main():
         radar_chart = get_radar_chart(input_data)
         st.plotly_chart(radar_chart)
     with col2:
-        st.write('this is colum 2') 
+        add_predictions(input_data)
 
 if __name__ == '__main__':
     main()
