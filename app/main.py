@@ -3,6 +3,7 @@ import pickle
 import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
+from htmltemplates import footer
 
 
 def get_clean_data():
@@ -151,12 +152,12 @@ def add_predictions(input_data):
     st.write('O grupo de células é: ')
 
     if prediction[0] == 0:
-        st.write('Benigno')
+        st.write("<span class='diagnosis benign'>Benigno</span>", unsafe_allow_html=True)
     else:
-        st.write('Maligno')
+        st.write("<span class='diagnosis malicious'>Maligno</span>", unsafe_allow_html=True)
 
-    st.write('A probabilidade de ser Benigno é: ', model.predict_proba(input_array_scaled)[0][0])
-    st.write('A probabilidade de ser Maligno é: ', model.predict_proba(input_array_scaled)[0][1])
+    st.write('A probabilidade de ser Benigno é: ', round(model.predict_proba(input_array_scaled)[0][0],2))
+    st.write('A probabilidade de ser Maligno é: ', round(model.predict_proba(input_array_scaled)[0][1],2))
 
     st.write('Este App pode auxiliar profissionais médicos no diagnóstico, mas não deve ser usado como substituto de um diagnóstico profissional.')
 
@@ -169,6 +170,9 @@ def main():
         initial_sidebar_state='expanded'
         )
     
+    with open("assets/style.css") as file:
+        st.markdown("<style>{}</style>".format(file.read()), unsafe_allow_html=True)
+    # st.write(css, unsafe_allow_html=True)
     input_data = add_sidebar()
     
 
@@ -187,6 +191,6 @@ def main():
         st.plotly_chart(radar_chart)
     with col2:
         add_predictions(input_data)
-
+    st.markdown(footer,unsafe_allow_html=True)
 if __name__ == '__main__':
     main()
