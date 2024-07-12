@@ -56,7 +56,7 @@
 
 <h2>Acesse o Web App</h2>
 
-<p>Você pode acessar o aplicativo web diretamente através do link: <a href="(https://cancermamadetector.streamlit.app/)">Preditor de Câncer de Mama</a></p>
+<p>Você pode acessar o aplicativo web diretamente através do link: <a href="http://cancermamadetector.streamlit.app">Preditor de Câncer de Mama</a></p>
 
 <h2>Contribuições</h2>
 
